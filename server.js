@@ -1,113 +1,147 @@
-const express  = require('express');
-const {register, login, createBlog, getBlog, updateBlog, deleteBlog} = require('./controllers/user');
-const connectDb = require('./DataBase/db');
-const  swaggerJsDoc =require('swagger-jsdoc')
-const swaggerUi = require('swagger-ui-express');
-const { User } = require('./DataBase/schema');
-
-User
-
+require("dotenv").config();
+const express = require("express");
+const connectDb = require("./database/db");
+const swaggerJsDoc = require("swagger-jsdoc");
+const swaggerUi = require("swagger-ui-express");
+const cookieParser = require("cookie-parser");
+const bodyParser = require("body-parser");
 
 const app = express();
-const PORT = process.env.PORT ||8080 ;
-
 app.use(express.json());
-const options = {
-    definition: {
-      openapi: '3.0.0',
-      info: {
-        title: 'Register-Login-JWT',
-        version: '1.0.0',
-        description:"Simple register-login page "
+app.use(cookieParser());
+app.use(bodyParser.json());
+const PORT = process.env.PORT || 8080;
+
+//Swagger initialization
+const swaggerOptions = {
+  swaggerDefinition: {
+    info: {
+      title: "Register-Login-app",
+      description: "Register-Login- with jwt Backend Documentation",
+      contact: {
+        name: "Oyesters ",
       },
-      servers: [
-        {
-          url: 'http://localhost:8080/'
-        }
-      ]
+      servers: [`http://localhost:${PORT}`],
     },
-    apis: ['./server.js']
-  };
+  },
+  apis: ["server.js"],
+};
 
-const swaggerSpec = swaggerJsDoc(options)
-app.use('/api-docs',swaggerUi.serve, swaggerUi.setup(swaggerSpec))
+const swaggerDocs = swaggerJsDoc(swaggerOptions);
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+
+const register = require("./controllers/register");
+const login = require("./controllers/login");
+const addblog = require("./controllers/addBlog");
+const getBlog = require("./controllers/getBLog");
+const updateBlog = require("./controllers/updateBLog");
+const deleteBlog = require("./controllers/deleteBlog");
+
+app.use("/backend", register);
+app.use("/backend", login);
+app.use("/backend", addblog);
+app.use("/backend", getBlog);
+app.use("/updateblog", updateBlog);
+app.use("/backend", deleteBlog);
 
 /**
- * @swagger 
- * /:
+ * @swagger
+ * /backend/register:
+ *  post:
+ *    tags:
+ *      - Authentication
+ *    summary: Register user
+ *    parameters:
+ *      - in: body
+ *        name: body
+ *        description: Register user
+ *        required: true
+ *        example: {"username":"user@gmail.com","password":"12345678"}
+ *    responses:
+ *      '200':
+ *        description: Success
+ *      '203':
+ *        description: failure
+ */
+
+/**
+ * @swagger
+ * /backend/login:
+ *  post:
+ *    tags:
+ *      - Authentication
+ *    summary: Login user
+ *    parameters:
+ *      - in: body
+ *        name: body
+ *        description: Login user
+ *        required: true
+ *        example: {"username":"user@gmail.com","password":"123456"}
+ *    responses:
+ *      '200':
+ *        description: Success
+ *      '203':
+ *        description: failure
+ */
+
+/**
+ * @swagger
+ * /backend/addblog:
+ *  post:
+ *    tags:
+ *      - Blog
+ *    summary: Adding Blog
+ *    parameters:
+ *      - in: body
+ *        name: body
+ *        description: Adding Blog
+ *        required: true
+ *        example: { "title":"my life story","author":"anil", "content": "thisis my life story"}
+ *    responses:
+ *      '200':
+ *        description: Success
+ *      '203':
+ *        description: failure
+ */
+
+/**
+ * @swagger
+ * /backend/login:
+ *  post:
+ *    tags:
+ *      - Authentication
+ *    summary: Login user
+ *    parameters:
+ *      - in: body
+ *        name: body
+ *        description: Login user
+ *        required: true
+ *        example: {"username":"user@gmail.com","password":"123456"}
+ *    responses:
+ *      '200':
+ *        description: Success
+ *      '203':
+ *        description: failure
+ */
+
+/**
+ * @swagger
+ * /backend/getblog:
  *  get:
- *      summary: this api for to check server
- *      description: checking
- *      responses:
- *           200:
- *               description: to test get method
- * 
+ *    tags:
+ *      - Blog
+ *    summary: Fetching Blog
+ *    responses:
+ *      '200':
+ *        description: Success
+ *      '203':
+ *        description: failure
  */
 
-app.get('/',(req,res)=>{
-    res.send("welcome")
-})
-
-/**
- * @swagger
- * /api/register:
- *   post:
- *     summary: Create a new user
- *     
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schema/User'
- *     responses:
- *       200:
- *         description: The User was successfully registered
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schema/User'
- *       11000:
- *         description: Username already exists
- */
-
-app.post('/api/register',register)
 
 
-/**
- * @swagger
- * /api/login:
- *   post:
- *     summary: Login a existing user
- *    
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/User'
- *     responses:
- *       200:
- *         description: The User was successfully logged in.
- */
-
-app.post('/api/login',login)
-
-app.post('/creatblog', createBlog)
-
-app.get('/getblog', getBlog)
-
-app.patch("/updateblog/:id", updateBlog)
-
-
-app.delete("/deleteblog/:id", deleteBlog)
-
-
-connectDb().then(()=>{
-
-    app.listen(PORT, ()=>{
-    
-        console.log(`server is  runing on port no. ${PORT}`)
-    })
-})
-
+connectDb().then(() => {
+  app.listen(PORT, () => {
+    console.log(`server is  runing on port no. ${PORT}`);
+  });
+});
