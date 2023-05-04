@@ -6,7 +6,8 @@ const app = express();
 const jwt = require("jsonwebtoken");
 const User = require("../database/userSchema");
 
-const SECRET_KEY = process.env.SECRET_KEY;
+const SECRET_KEY =
+  "srtjkjklmnot8852za@#*(&@*!^#&@bhjb2qiuhesdbhjdsfg839ujkdhfjk";
 // Register user route
 app.post("/login", async (req, res) => {
   const { username, password } = req.body;
